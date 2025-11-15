@@ -185,7 +185,7 @@ class MessengerClient:
                     "message_limit": message_limit,
                     "load_messages": True,
                     "load_read_receipts": True,
-                    "before": None,
+                    "before": before,
                     })
 
         data = {"queries": self._graphql.queries_to_json(query)}

@@ -95,3 +95,58 @@ See [LICENSE](./LICENSE.md) for details.
 
 - [Facebook](https://facebook.com/muqit.dev)
 
+## 🚀 HTTP API service
+
+Alongside the Python package, the repository now bundles a thin FastAPI wrapper
+that exposes fbchat-muqit through a deployable HTTP interface. The service keeps
+the original library API intact while offering:
+
+- `POST /groups/scrape` and `POST /groups/scrape/run` – run-once scrape
+  operations that accept a payload inspired by Apify's Facebook group scraper
+  schema (cookies, groupUrl, count, cursor, sortType, scrapeUntil, min/max
+  delay, proxy, etc.).
+- `GET /openapi.json`, `GET /docs`, and `GET /redoc` – discoverable OpenAPI 3
+  schema with interactive Swagger UI.
+- `GET /healthz` – lightweight liveness probe for deployment platforms.
+
+### Authentication
+
+The API can read Facebook cookies from two sources:
+
+1. `cookie` array in the request body – highest precedence and only used for
+   that request.
+2. `FB_COOKIES_FILE_PATH` environment variable – fallback path to a JSON file
+   mounted inside the container.
+
+If both are available, the in-request cookies win for that call, mirroring the
+behaviour of the original library.
+
+### Running locally
+
+Install the optional `api` dependencies and launch the ASGI app:
+
+```bash
+pip install .[api]
+uvicorn fbchat_muqit_api.main:app --host 0.0.0.0 --port 8000
+```
+
+Then open http://localhost:8000/docs to test the endpoints.
+
+### Docker & Railway deployment
+
+- Build locally: `docker build -t fbchat-muqit-api .`
+- Run: `docker run -p 8000:8000 -e FB_COOKIES_FILE_PATH=/run/secrets/cookies.json \
+    -v $(pwd)/cookies.json:/run/secrets/cookies.json fbchat-muqit-api`
+- Railway: deploy the repository as-is – the provided `Dockerfile`, `Procfile`
+  and `railway.json` configure a single web service that binds to
+  `0.0.0.0:$PORT`.
+
+Environment variables:
+
+| Name | Description |
+| --- | --- |
+| `FB_COOKIES_FILE_PATH` | Optional absolute path to `cookies.json` inside the container. |
+| `FB_DEFAULT_MIN_DELAY` | Default minimum delay (seconds) between pagination requests. |
+| `FB_DEFAULT_MAX_DELAY` | Default maximum delay (seconds) between pagination requests. |
+| `FB_LOG_LEVEL` | Log level propagated to fbchat-muqit `Client` instances. |
+
