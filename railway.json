@@ -1,0 +1,37 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "DOCKER"
+  },
+  "deploy": {
+    "restartPolicyType": "on_failure",
+    "sleepApplication": false,
+    "numReplicas": 1
+  },
+  "services": [
+    {
+      "name": "fbchat-muqit-api",
+      "type": "web",
+      "env": "production",
+      "port": 8000
+    }
+  ],
+  "variables": [
+    {
+      "name": "FB_COOKIES_FILE_PATH",
+      "description": "Absolute path to a mounted cookies.json file used when requests do not include the cookie array."
+    },
+    {
+      "name": "FB_DEFAULT_MIN_DELAY",
+      "description": "Default minimum delay (seconds) between pagination calls."
+    },
+    {
+      "name": "FB_DEFAULT_MAX_DELAY",
+      "description": "Default maximum delay (seconds) between pagination calls."
+    },
+    {
+      "name": "FB_LOG_LEVEL",
+      "description": "Log level passed down to fbchat-muqit Client instances."
+    }
+  ]
+}
